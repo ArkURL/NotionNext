@@ -14,6 +14,8 @@ RUN yarn install --frozen-lockfile
 # 2. Rebuild the source code only when needed
 FROM base AS builder
 ARG NOTION_PAGE_ID
+ARG NEXT_PUBLIC_THEME
+ENV NEXT_PUBLIC_THEME=$NEXT_PUBLIC_THEME
 ENV NEXT_BUILD_STANDALONE=true
 
 WORKDIR /app
