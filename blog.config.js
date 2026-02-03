@@ -17,6 +17,7 @@ const BLOG = {
   APPEARANCE_DARK_TIME: process.env.NEXT_PUBLIC_APPEARANCE_DARK_TIME || [18, 6], // 夜间模式起至时间，false时关闭根据时间自动切换夜间模式
 
   AUTHOR: process.env.NEXT_PUBLIC_AUTHOR || 'SailingRoot', // 您的昵称 例如 tangly1024
+  AVATAR: process.env.NEXT_PUBLIC_AVATAR || '/avatar.png', // 头像图片路径，支持在线URL或本地 /public/avatar.png
   BIO: process.env.NEXT_PUBLIC_BIO || '一个想跑路的打灰人，随缘更新', // 作者简介
   LINK: process.env.NEXT_PUBLIC_LINK || 'https://blog.20263602.xyz', // 网站地址
   KEYWORDS: process.env.NEXT_PUBLIC_KEYWORD || 'SailingRoot, 博客, 技术, 分享', // 网站关键词 英文逗号隔开
