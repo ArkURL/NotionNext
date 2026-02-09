@@ -60,6 +60,13 @@ export async function getStaticProps({
     locale,
   })
 
+  // 如果找不到对应的文章，返回 404 而不是构建失败
+  if (!props?.post) {
+    return {
+      notFound: true,
+    }
+  }
+
   return {
     props,
     revalidate: process.env.EXPORT
