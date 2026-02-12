@@ -1,5 +1,4 @@
 import BLOG, { LAYOUT_MAPPINGS } from '@/blog.config'
-import * as ThemeComponents from '@theme-components'
 import getConfig from 'next/config'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
@@ -51,8 +50,14 @@ export const getThemeConfig = async themeQuery => {
     }
   }
 
-  // 如果没有 themeQuery 或 themeQuery 与默认主题相同，返回默认主题配置
-  return ThemeComponents?.THEME_CONFIG
+  // 如果没有 themeQuery 或 themeQuery 与默认主题相同，则加载默认主题配置
+  try {
+    const { THEME_CONFIG } = await import(`@/themes/${BLOG.THEME}`)
+    return THEME_CONFIG
+  } catch (error) {
+    console.error(`Error loading default theme configuration for ${BLOG.THEME}:`, error)
+    return null
+  }
 }
 
 /**
@@ -61,16 +66,10 @@ export const getThemeConfig = async themeQuery => {
  * @returns
  */
 export const getBaseLayoutByTheme = theme => {
-  const LayoutBase = ThemeComponents['LayoutBase']
-  const isDefaultTheme = !theme || theme === BLOG.THEME
-  if (!isDefaultTheme) {
-    return dynamic(
-      () => import(`@/themes/${theme}`).then(m => m['LayoutBase']),
-      { ssr: true }
-    )
-  }
-
-  return LayoutBase
+  return dynamic(
+    () => import(`@/themes/${theme || BLOG.THEME}`).then(m => m.LayoutBase),
+    { ssr: true }
+  )
 }
 
 /**
@@ -90,30 +89,20 @@ export const DynamicLayout = props => {
  * @returns
  */
 export const useLayoutByTheme = ({ layoutName, theme }) => {
-  // const layoutName = getLayoutNameByPath(router.pathname, router.asPath)
-  const LayoutComponents =
-    ThemeComponents[layoutName] || ThemeComponents.LayoutSlug
-
   const router = useRouter()
-  const themeQuery = getQueryParam(router?.asPath, 'theme') || theme
-  const isDefaultTheme = !themeQuery || themeQuery === BLOG.THEME
+  const themeQuery = getQueryParam(router?.asPath, 'theme') || theme || BLOG.THEME
 
-  // 加载非当前默认主题
-  if (!isDefaultTheme) {
-    const loadThemeComponents = componentsSource => {
-      const components =
-        componentsSource[layoutName] || componentsSource.LayoutSlug
-      setTimeout(fixThemeDOM, 500)
-      return components
-    }
-    return dynamic(
-      () => import(`@/themes/${themeQuery}`).then(m => loadThemeComponents(m)),
-      { ssr: true }
-    )
+  const loadThemeComponents = componentsSource => {
+    const components =
+      componentsSource[layoutName] || componentsSource.LayoutSlug
+    setTimeout(fixThemeDOM, 500)
+    return components
   }
 
-  setTimeout(fixThemeDOM, 100)
-  return LayoutComponents
+  return dynamic(
+    () => import(`@/themes/${themeQuery}`).then(m => loadThemeComponents(m)),
+    { ssr: true }
+  )
 }
 
 /**
